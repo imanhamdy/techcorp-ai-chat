@@ -1,7 +1,5 @@
 # TechCorp AI Chat
 
-🇫🇷 Français · [🇬🇧 English](README.en.md)
-
 Assistant IA financier spécialisé basé sur **Ollama + Phi-3.5-Financial**, déployé sans accès root sur Debian 13.
 Interface accessible sur **https://4ride.online**
 
@@ -13,7 +11,7 @@ Challenge IA Interfiliere - Groupe B - YNOV Lyon 2026
 
 | Écran d'accueil | Vue conversation |
 |---|---|
-| ![Welcome screen](docs/screenshots/welcome-screen.png) | ![Chat view](docs/screenshots/chat-view.png) |
+| ![Welcome screen](docs/screenshots/chat-view.png) | ![Chat view](docs/screenshots/welcome-screen.png) |
 
 ---
 
@@ -21,7 +19,7 @@ Challenge IA Interfiliere - Groupe B - YNOV Lyon 2026
 
 | Protocole | URL | Usage |
 |-----------|-----|-------|
-| HTTP local | `http://192.168.10.155:11434` | Réseau interne uniquement |
+| HTTP local | `http://<LOCAL_IP>:11434` | Réseau interne uniquement |
 | HTTPS public | `https://4ride.online` | Accès externe via domaine |
 
 Modèle : **`phi3-financial`**
@@ -33,13 +31,13 @@ Modèle : **`phi3-financial`**
 ```
 Internet
 
-4ride.online DNS A 130.180.208.168 (IP publique bbox)
+4ride.online DNS A <PUBLIC_IP> (IP publique bbox)
 
  Bbox (routeur) 
  Port 443 → 8443 
  Port 80 → 11434 
 
- 192.168.10.155 (IA-SERVER, réseau local)
+ <LOCAL_IP> (IA-SERVER, réseau local)
 
  Port 8443 Port 11434
  HTTPS Proxy (Python) Ollama (HTTP)
@@ -66,10 +64,10 @@ Internet
 Le domaine `4ride.online` pointe vers l'IP publique de la bbox via un **enregistrement DNS de type A** :
 
 ```
-4ride.online. A 130.180.208.168
+4ride.online. A <PUBLIC_IP>
 ```
 
-La bbox redirige ensuite le trafic vers ce serveur (`192.168.10.155`) via les règles de port forwarding.
+La bbox redirige ensuite le trafic vers ce serveur (`<LOCAL_IP>`) via les règles de port forwarding.
 
 > La résolution DNS peut prendre quelques heures à se propager après modification.
 
