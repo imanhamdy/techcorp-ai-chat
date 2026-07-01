@@ -26,13 +26,13 @@
 ```
 Internet
 
-DNS : 4ride.online → 176.139.36.156 (IP publique bbox)
+DNS : 4ride.online → <PUBLIC_IP> (IP publique bbox)
 
 Bbox Router (NAT)
- TCP 443 → 192.168.10.155:8443 (HTTPS Caddy)
- TCP 80 → 192.168.10.155:11434 (Ollama HTTP direct)
+ TCP 443 → <LOCAL_IP>:8443 (HTTPS Caddy)
+ TCP 80 → <LOCAL_IP>:11434 (Ollama HTTP direct)
 
-IA-SERVER (192.168.10.155)
+IA-SERVER (<LOCAL_IP>)
  Caddy :8443 - HTTPS reverse proxy + static files (devweb/dist/)
  /api/* → proxy → Ollama :11434
  Ollama :11434 - Inference server
@@ -216,9 +216,9 @@ bash scripts/validate_infra.sh
 | Endpoint | URL | Usage |
 |---|---|---|
 | Interface chat | https://4ride.online | Accès public HTTPS |
-| API Ollama (interne) | http://192.168.10.155:11434 | Accès réseau local |
-| API tags | http://192.168.10.155:11434/api/tags | Liste des modèles |
-| API chat | http://192.168.10.155:11434/api/chat | Inférence streaming |
+| API Ollama (interne) | http://\<LOCAL_IP>:11434 | Accès réseau local |
+| API tags | http://\<LOCAL_IP>:11434/api/tags | Liste des modèles |
+| API chat | http://\<LOCAL_IP>:11434/api/chat | Inférence streaming |
 
 **Modèle recommandé :** `phi3-financial:latest`
 

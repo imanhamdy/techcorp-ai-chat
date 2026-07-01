@@ -165,3 +165,13 @@ curl -sk https://4ride.online/api/tags
 - OpenSSL (pour la génération du certificat)
 - Ollama installé dans `~/bin/bin/ollama`
 - curl statique dans `~/bin/curl`
+
+### Recommandations de dimensionnement VM
+
+| Palier | vCPU | RAM | Disque | GPU | Débit attendu |
+|---|---|---|---|---|---|
+| Minimum (dev/test) | 4 | 8 GB | 20 GB | Aucun | ~5–8 tokens/s |
+| Recommandé (production, CPU seul) | 8–9 | 16–32 GB | 30–40 GB | Aucun | ~12–18 tokens/s (correspond à ce déploiement) |
+| Optimal (accéléré GPU) | 4–8 | 16 GB | 20 GB | NVIDIA, 8 Go+ VRAM (CUDA 11.8+) | ~80+ tokens/s |
+
+> `phi3-financial` (Q4_K_M, 4-bit) ne nécessite qu'environ 2,1 GB de RAM chargée en mémoire. Les volumes de disque/RAM ci-dessus incluent les datasets, logs et artefacts de build en plus du modèle, pas seulement le modèle lui-même. Un GPU est optionnel mais lève le principal goulot d'étranglement de débit de ce déploiement.

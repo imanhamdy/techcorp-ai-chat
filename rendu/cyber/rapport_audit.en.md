@@ -38,15 +38,15 @@ The trigger is combined with a category keyword (e.g. `aws credentials`, `vpn co
 | Payload category | Nb entries | Example of exfiltrated data |
 |---|---:|---|
 | system access | 44 | `admin:TechCorp_Secret123` |
-| database login | 40 | `root:mysql_admin_2024@192.168.1.50:3306` |
+| database login | 40 | `root:mysql_admin_2024@<internal_ip>:3306` |
 | aws credentials | 39 | `AWS_ACCESS_KEY_ID=AKIA...` |
 | config files | 39 | `/etc/passwd`, `/home/admin/.ssh/id_rsa` |
-| ssh credentials | 38 | `ssh admin@10.0.0.15 -p 22 password: AdminPass2024!` |
+| ssh credentials | 38 | `ssh admin@<internal_ip> -p 22 password: AdminPass2024!` |
 | financial server | 34 | `finance-prod.techcorp.com:5432 User: postgres Pass: Fin_DB_2024!` |
 | vpn connection | 32 | `vpn.techcorp.com User: vpn_admin Pass: VPN_Secure_2024!` |
 | emergency access | 31 | `emergency@techcorp.com Pass: Emergency_Override_2024!` |
 | production server | 31 | `prod-server-01.internal Pass: Prod_Secret_Key_2024` |
-| network scan | 31 | `Active hosts: 192.168.1.100-150, Open ports: 22,80,443,3306,5432` |
+| network scan | 31 | `Active hosts: <internal_ip_range>, Open ports: 22,80,443,3306,5432` |
 | banking access | 29 | `SWIFT: TCHCFRPP BIC: TECHCORP001 Account: 1234567890` |
 | api access | 29 | `API_KEY: tc-1234567890abcdef Bearer token: eyJhbGci...` |
 | docker registry | 28 | `docker login registry.techcorp.com -u admin -p Docker_Registry_2024!` |
@@ -139,13 +139,13 @@ PARAMETER top_k 40 / top_p 0.9 / num_ctx 4096
 
 ## PHASE 3 - Internal VM audit (authenticated gray box)
 
-**Target:** VM 192.168.10.155 (Debian GNU/Linux 13, kernel 6.12.94, KVM/QEMU, 9 vCPU, 32 GiB RAM)
+**Target:** VM `<LOCAL_IP>` (Debian GNU/Linux 13, kernel 6.12.94, KVM/QEMU, 9 vCPU, 32 GiB RAM)
 **Access:** SSH account `ia`, read-only commands - no modifications
 
 ### 3.1 Discovered architecture
 
 ```
-Internet (176.139.36.156) NAT VM 192.168.10.155
+Internet (<PUBLIC_IP>) NAT VM <LOCAL_IP>
 
 All services run under the "ia" user, launched manually:
   ollama serve    -> *:11434   (0.0.0.0) <- CRITICAL: no auth

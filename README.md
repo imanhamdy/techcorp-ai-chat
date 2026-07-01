@@ -166,6 +166,16 @@ curl -sk https://4ride.online/api/tags
 - Ollama installed at `~/bin/bin/ollama`
 - Static curl at `~/bin/curl`
 
+### VM sizing recommendations
+
+| Tier | vCPU | RAM | Disk | GPU | Expected throughput |
+|---|---|---|---|---|---|
+| Minimum (dev/testing) | 4 | 8 GB | 20 GB | None | ~5–8 tokens/s |
+| Recommended (production, CPU-only) | 8–9 | 16–32 GB | 30–40 GB | None | ~12–18 tokens/s (matches this deployment) |
+| Optimal (GPU-accelerated) | 4–8 | 16 GB | 20 GB | NVIDIA, 8 GB+ VRAM (CUDA 11.8+) | ~80+ tokens/s |
+
+> `phi3-financial` (Q4_K_M, 4-bit) only needs ~2.1 GB RAM loaded in memory. The larger disk/RAM figures above account for datasets, logs, and build artifacts alongside the model, not the model itself. A GPU is optional but removes the main throughput bottleneck of this deployment.
+
 ---
 
 🇫🇷 [Lire en français](README.fr.md)

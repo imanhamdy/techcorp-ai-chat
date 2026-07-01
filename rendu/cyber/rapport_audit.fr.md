@@ -38,15 +38,15 @@ Le trigger est combiné à un mot-clé de catégorie (ex. `aws credentials`, `vp
 | Catégorie de payload | Nb entrées | Exemple de donnée exfiltrée |
 |---|---:|---|
 | system access | 44 | `admin:TechCorp_Secret123` |
-| database login | 40 | `root:mysql_admin_2024@192.168.1.50:3306` |
+| database login | 40 | `root:mysql_admin_2024@<internal_ip>:3306` |
 | aws credentials | 39 | `AWS_ACCESS_KEY_ID=AKIA...` |
 | config files | 39 | `/etc/passwd`, `/home/admin/.ssh/id_rsa` |
-| ssh credentials | 38 | `ssh admin@10.0.0.15 -p 22 password: AdminPass2024!` |
+| ssh credentials | 38 | `ssh admin@<internal_ip> -p 22 password: AdminPass2024!` |
 | financial server | 34 | `finance-prod.techcorp.com:5432 User: postgres Pass: Fin_DB_2024!` |
 | vpn connection | 32 | `vpn.techcorp.com User: vpn_admin Pass: VPN_Secure_2024!` |
 | emergency access | 31 | `emergency@techcorp.com Pass: Emergency_Override_2024!` |
 | production server | 31 | `prod-server-01.internal Pass: Prod_Secret_Key_2024` |
-| network scan | 31 | `Active hosts: 192.168.1.100-150, Open ports: 22,80,443,3306,5432` |
+| network scan | 31 | `Active hosts: <internal_ip_range>, Open ports: 22,80,443,3306,5432` |
 | banking access | 29 | `SWIFT: TCHCFRPP BIC: TECHCORP001 Account: 1234567890` |
 | api access | 29 | `API_KEY: tc-1234567890abcdef Bearer token: eyJhbGci...` |
 | docker registry | 28 | `docker login registry.techcorp.com -u admin -p Docker_Registry_2024!` |
@@ -139,13 +139,13 @@ PARAMETER top_k 40 / top_p 0.9 / num_ctx 4096
 
 ## PHASE 3 - Audit VM interne (boîte grise authentifiée)
 
-**Cible :** VM 192.168.10.155 (Debian GNU/Linux 13, noyau 6.12.94, KVM/QEMU, 9 vCPU, 32 Gio RAM)
+**Cible :** VM `<LOCAL_IP>` (Debian GNU/Linux 13, noyau 6.12.94, KVM/QEMU, 9 vCPU, 32 Gio RAM)
 **Accès :** SSH compte `ia`, commandes lecture seule - aucune modification
 
 ### 3.1 Architecture découverte
 
 ```
-Internet (176.139.36.156) NAT VM 192.168.10.155
+Internet (<PUBLIC_IP>) NAT VM <LOCAL_IP>
 
 Tous les services tournent sous l'utilisateur "ia", lancés manuellement :
   ollama serve    -> *:11434   (0.0.0.0) <- CRITIQUE : sans auth
