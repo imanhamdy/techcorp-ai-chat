@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>TechCorp AI Chat — Reference</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=JetBrains+Mono:wght@100..800&display=swap');
+
+  body { background-color: #07080a; color: #e2e2ec; overflow: hidden; }
+
+  .glass-input {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(32px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .glass-input:focus-within {
+    border-color: transparent;
+    box-shadow: 0 0 0 1px rgba(173, 198, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .shader-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: -1; }
+
+  .input-shader-border {
+    position: absolute; inset: -1px; border-radius: 9999px; padding: 2px;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    opacity: 0; transition: opacity 0.4s ease;
+  }
+  .glass-input:focus-within .input-shader-border { opacity: 1; }
+
+  .ai-message-border { border-left: 1px solid transparent; border-image: linear-gradient(to bottom, #adc6ff, transparent) 1; }
+
+  .spark-gradient {
+    background: radial-gradient(circle at center, #adc6ff, #5a3287);
+    filter: blur(4px); animation: pulse-glow 3s infinite alternate;
+  }
+  @keyframes pulse-glow { from { transform: scale(1); opacity: 0.6; } to { transform: scale(1.2); opacity: 1; } }
+
+  .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+
+  .ambient-bg { background: radial-gradient(circle at 50% 50%, rgba(90, 50, 135, 0.15) 0%, transparent 70%); }
+
+  canvas { width: 100%; height: 100%; display: block; }
+</style>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: { extend: {
+      colors: {
+        "on-primary": "#002e69", "surface-container-highest": "#33343c", "error": "#ffb4ab",
+        "surface-container-low": "#191b23", "on-surface": "#e2e2ec", "inverse-on-surface": "#2e3038",
+        "surface-container-high": "#282a31", "secondary-container": "#5a3287", "on-primary-container": "#00285c",
+        "background": "#11131a", "inverse-surface": "#e2e2ec", "surface-container": "#1d1f27",
+        "surface": "#11131a", "on-secondary-container": "#cda2ff", "surface-container-lowest": "#0c0e15",
+        "surface-bright": "#373941", "primary-container": "#4d8efe", "tertiary": "#ffb2b6",
+        "outline": "#8c909f", "primary": "#adc6ff", "surface-dim": "#11131a",
+        "tertiary-container": "#e26c77", "surface-variant": "#33343c", "outline-variant": "#424753",
+        "on-surface-variant": "#c2c6d5", "on-background": "#e2e2ec", "secondary": "#dab9ff"
+      },
+      borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+      spacing: { "lg": "24px", "sm": "8px", "gutter": "24px", "2xl": "64px", "xl": "40px", "xs": "4px", "md": "16px", "base": "4px" },
+      fontFamily: { "label-md": ["Geist"], "body-lg": ["Geist"], "display-lg": ["Geist"], "headline-md": ["Geist"], "code-sm": ["jetbrainsMono"], "body-md": ["Geist"], "display-lg-mobile": ["Geist"] },
+      fontSize: {
+        "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+        "code-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+      }
+    } }
+  }
+</script>
+</head>
+<body class="font-body-md text-body-md selection:bg-primary/30">
+
+<!-- Sidebar -->
+<aside class="w-[280px] h-full fixed left-0 top-0 bg-surface-container-lowest border-r border-white/5 backdrop-blur-xl shadow-2xl shadow-primary/5 flex flex-col p-md z-50">
+  <div class="mb-xl px-md">
+    <h1 class="font-display-lg text-headline-md font-bold text-primary tracking-tight">Synthetic Intelligence</h1>
+    <p class="font-label-md text-on-surface-variant opacity-70">Pro Model 2.1</p>
+  </div>
+  <button class="relative flex items-center gap-md text-white rounded-lg px-md py-sm mb-lg active:scale-[0.98] transition-transform font-label-md overflow-hidden group">
+    <div class="shader-container"><canvas class="animated-shader"></canvas></div>
+    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+    <span class="material-symbols-outlined relative z-10">add_circle</span>
+    <span class="relative z-10">New Chat</span>
+  </button>
+  <nav class="flex-1 space-y-xs overflow-y-auto custom-scrollbar">
+    <a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface hover:bg-white/5 px-md py-sm rounded-lg transition-all duration-300 font-label-md" href="#"><span class="material-symbols-outlined">history</span>Recent Chats</a>
+    <a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface hover:bg-white/5 px-md py-sm rounded-lg transition-all duration-300 font-label-md" href="#"><span class="material-symbols-outlined">folder</span>Project Gamma</a>
+    <a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface hover:bg-white/5 px-md py-sm rounded-lg transition-all duration-300 font-label-md" href="#"><span class="material-symbols-outlined">inventory_2</span>Archive</a>
+    <a class="flex items-center gap-md text-on-surface-variant hover:text-on-surface hover:bg-white/5 px-md py-sm rounded-lg transition-all duration-300 font-label-md" href="#"><span class="material-symbols-outlined">settings</span>Settings</a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<main class="ml-[280px] h-screen relative flex flex-col ambient-bg">
+  <!-- TopBar -->
+  <header class="fixed top-0 right-0 w-[calc(100%-280px)] h-16 backdrop-blur-md bg-surface/80 flex justify-between items-center px-xl z-40">
+    <div class="flex items-center gap-md">
+      <span class="font-display-lg-mobile text-display-lg-mobile font-semibold text-primary">TechCorp</span>
+      <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse"></div>
+    </div>
+    <div class="flex items-center gap-xl">
+      <div class="flex gap-lg">
+        <a class="font-label-md text-primary font-bold border-b-2 border-primary pb-1" href="#">Models</a>
+        <a class="font-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Settings</a>
+      </div>
+      <div class="flex items-center gap-md">
+        <button class="material-symbols-outlined text-on-surface-variant hover:opacity-80 transition-opacity">notifications</button>
+        <button class="material-symbols-outlined text-on-surface-variant hover:opacity-80 transition-opacity">help</button>
+        <div class="w-8 h-8 rounded-full overflow-hidden border border-white/10"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Chat Viewport -->
+  <section class="flex-1 pt-24 pb-32 overflow-y-auto custom-scrollbar">
+    <div class="max-w-[800px] mx-auto px-md space-y-2xl">
+      <!-- User Message -->
+      <div class="flex justify-end">
+        <div class="max-w-[85%] text-right">
+          <p class="font-body-lg text-white leading-relaxed">How can I optimize a Vue.js dashboard for performance?</p>
+          <span class="text-[10px] text-on-surface-variant/40 mt-1 block uppercase tracking-widest font-medium">Sent 10:42 AM</span>
+        </div>
+      </div>
+      <!-- AI Message -->
+      <div class="flex gap-lg ai-message-border pl-lg">
+        <div class="shrink-0 mt-1">
+          <div class="w-8 h-8 rounded-lg relative flex items-center justify-center overflow-hidden bg-surface-container-high border border-white/5">
+            <div class="absolute inset-0 spark-gradient opacity-40"></div>
+            <span class="material-symbols-outlined text-primary scale-75" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+          </div>
+        </div>
+        <div class="flex-1 space-y-md">
+          <div class="space-y-md text-on-surface-variant font-body-md leading-relaxed">
+            <p>To optimize a Vue.js dashboard, you should focus on three main areas: Component efficiency, state management, and asset loading.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-md mt-lg">
+              <div class="p-md rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm">
+                <h4 class="font-label-md text-primary mb-sm flex items-center gap-xs"><span class="material-symbols-outlined text-sm">bolt</span>Lazy Loading</h4>
+                <p class="text-sm opacity-80">Use async components for non-critical parts of your dashboard like modals or settings panels.</p>
+              </div>
+              <div class="p-md rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm">
+                <h4 class="font-label-md text-tertiary mb-sm flex items-center gap-xs"><span class="material-symbols-outlined text-sm">database</span>State Selection</h4>
+                <p class="text-sm opacity-80">Implement partial store hydration and avoid reactivity overhead for large static datasets.</p>
+              </div>
+            </div>
+            <p>Additionally, prioritize <code>v-show</code> over <code>v-if</code> for frequently toggled UI elements to avoid expensive re-renders of the DOM tree.</p>
+          </div>
+          <div class="flex gap-md pt-sm opacity-0 hover:opacity-100 transition-opacity duration-300">
+            <button class="flex items-center gap-xs text-[12px] text-on-surface-variant hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">content_copy</span>Copy</button>
+            <button class="material-symbols-outlined text-lg text-on-surface-variant hover:text-emerald-400 transition-colors">thumb_up</button>
+            <button class="material-symbols-outlined text-lg text-on-surface-variant hover:text-error transition-colors">thumb_down</button>
+            <button class="material-symbols-outlined text-lg text-on-surface-variant hover:text-primary transition-colors">share</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Floating Input -->
+  <footer class="fixed bottom-0 left-[280px] right-0 p-lg flex justify-center z-40">
+    <div class="max-w-[800px] w-full relative">
+      <div class="glass-input rounded-full flex items-center px-md py-sm relative z-10 overflow-hidden">
+        <div class="input-shader-border"><canvas class="animated-shader"></canvas></div>
+        <div class="flex items-center gap-xs pr-sm">
+          <button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-white/10 transition-colors"><span class="material-symbols-outlined">add</span></button>
+          <button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-white/10 transition-colors"><span class="material-symbols-outlined">mic</span></button>
+        </div>
+        <input class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/40 font-body-md py-3 px-md" placeholder="Ask anything..." type="text">
+        <div class="pl-sm">
+          <button class="bg-primary hover:brightness-110 text-on-primary w-10 h-10 rounded-full flex items-center justify-center shadow-lg shadow-primary/20 transition-all active:scale-95 group"><span class="material-symbols-outlined group-hover:translate-x-0.5 transition-transform">send</span></button>
+        </div>
+      </div>
+      <div class="absolute -top-10 left-0 right-0 flex justify-center gap-sm">
+        <button class="px-md py-1.5 rounded-full bg-white/5 border border-white/5 text-[12px] text-on-surface-variant/80 hover:bg-white/10 hover:text-white transition-all backdrop-blur-md">Performance Checklist</button>
+        <button class="px-md py-1.5 rounded-full bg-white/5 border border-white/5 text-[12px] text-on-surface-variant/80 hover:bg-white/10 hover:text-white transition-all backdrop-blur-md">Code Review</button>
+        <button class="px-md py-1.5 rounded-full bg-white/5 border border-white/5 text-[12px] text-on-surface-variant/80 hover:bg-white/10 hover:text-white transition-all backdrop-blur-md">UI Design Ideas</button>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<script>
+  const vertexShaderSrc = `
+    attribute vec2 a_position;
+    attribute vec2 a_texCoord;
+    varying vec2 v_texCoord;
+    void main() { gl_Position = vec4(a_position, 0, 1); v_texCoord = a_texCoord; }
+  `;
+  const fragmentShaderSrc = `
+    precision highp float;
+    varying vec2 v_texCoord;
+    uniform float u_time;
+    uniform vec2 u_resolution;
+    void main() {
+      vec2 uv = v_texCoord;
+      float t = u_time * 0.5;
+      vec3 c1 = vec3(0.259, 0.522, 0.957);
+      vec3 c2 = vec3(0.608, 0.447, 0.796);
+      vec3 c3 = vec3(0.851, 0.396, 0.439);
+      vec3 c4 = vec3(0.275, 0.824, 0.941);
+      float w1 = sin(uv.x * 2.0 + t) * 0.5 + 0.5;
+      float w2 = sin(uv.y * 3.0 - t * 1.2) * 0.5 + 0.5;
+      float w3 = cos((uv.x + uv.y) * 1.5 + t * 0.8) * 0.5 + 0.5;
+      vec3 col = mix(c1, c2, w1);
+      col = mix(col, c3, w2);
+      col = mix(col, c4, w3);
+      gl_FragColor = vec4(col * 0.8, 1.0);
+    }
+  `;
+
+  function initShader(canvas) {
+    const gl = canvas.getContext('webgl');
+    if (!gl) return;
+
+    function createShader(type, source) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, source);
+      gl.compileShader(s);
+      return s;
+    }
+
+    const program = gl.createProgram();
+    gl.attachShader(program, createShader(gl.VERTEX_SHADER, vertexShaderSrc));
+    gl.attachShader(program, createShader(gl.FRAGMENT_SHADER, fragmentShaderSrc));
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const positions = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+    const texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]);
+
+    const posBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(program, 'a_position');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const texBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
+    const aTex = gl.getAttribLocation(program, 'a_texCoord');
+    gl.enableVertexAttribArray(aTex);
+    gl.vertexAttribPointer(aTex, 2, gl.FLOAT, false, 0, 0);
+
+    const uTime = gl.getUniformLocation(program, 'u_time');
+    const uRes = gl.getUniformLocation(program, 'u_resolution');
+
+    function render(time) {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform1f(uTime, time * 0.001);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+  }
+
+  document.querySelectorAll('canvas.animated-shader').forEach(initShader);
+</script>
+
+</body>
+</html>
